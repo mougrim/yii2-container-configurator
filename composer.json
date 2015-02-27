@@ -1,0 +1,39 @@
+{
+    "name": "mougrim/yii2-container-configurator",
+    "type": "yii2-extension",
+    "description": "Yii2 container configurator",
+    "keywords": [
+        "yii2",
+        "yii2 di container configurator",
+        "yii2 di config",
+        "yii2 di configurator",
+        "yii2 container config",
+        "yii2 container configurator",
+        "yii2 container",
+        "di",
+        "container",
+        "configurator",
+        "config"
+    ],
+    "homepage": "https://github.com/mougrim/yii2-container-configurator",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/mougrim/yii2-container-configurator/issues",
+        "wiki": "https://github.com/mougrim/yii2-container-configurator/wiki",
+        "source": "https://github.com/mougrim/yii2-container-configurator"
+    },
+    "authors": [
+        {
+            "name": "Mougrim",
+            "email": "rinat@mougrim.ru"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "mougrim\\yii2ContainerConfigurator\\": "mougrim/yii2ContainerConfigurator"
+        }
+    }
+}
