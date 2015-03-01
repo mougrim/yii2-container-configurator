@@ -10,8 +10,8 @@ use ReflectionClass;
  */
 class ContainerConfigurator
 {
-    const CLASS_TYPE_SERVICE = 'service';
-    const CLASS_TYPE_PROTOTYPE = 'prototype';
+    const COMPONENT_TYPE_SERVICE = 'service';
+    const COMPONENT_TYPE_PROTOTYPE = 'prototype';
 
     const ARGUMENT_TYPE_REFERENCE = 'reference';
     const ARGUMENT_TYPE_VALUE = 'value';
@@ -27,6 +27,64 @@ class ContainerConfigurator
         $this->container = $container;
     }
 
+    /**
+     * The following is an example for registering components definitions:
+     *
+     * ```php
+     * [
+     *     // callback, call in every inject
+     *     'app' => function () {
+     *         return Yii::$app;
+     *     },
+     *     'front.response' => [
+     *         'class' => Response::class,
+     *     ],
+     *     'front.request' => [
+     *         'class' => Request::class,
+     *         // set properties
+     *         'properties' => [
+     *             'cookieValidationKey' => [
+     *                 // type value, set as is
+     *                 'type' => ContainerConfigurator::ARGUMENT_TYPE_VALUE,
+     *                 'value' => '',
+     *             ],
+     *         ],
+     *     ],
+     *     'frontend.components.controller' => [
+     *         // default component type service - this is singleton in yii di, if prototype - create new instance in every inject
+     *         'type' => ContainerConfigurator::COMPONENT_TYPE_PROTOTYPE,
+     *         'properties' => [
+     *             'app' => [
+     *                 // id referenced component
+     *                 'id' => 'app',
+     *                 // type reference - use another component
+     *                 'type' => ContainerConfigurator::ARGUMENT_TYPE_REFERENCE,
+     *             ],
+     *         ],
+     *     ],
+     *     'frontend.controllers.site' => [
+     *         'class' => SiteController::class,
+     *         // extend another component
+     *         'extends' => 'frontend.components.controller',
+     *         // pass to constructor
+     *         'arguments' => [
+     *             2 => [ // argument number
+     *                 'id' => 'front.request',
+     *                 'type' => ContainerConfigurator::ARGUMENT_TYPE_REFERENCE,
+     *             ],
+     *             3 => [
+     *                 'id' => 'front.response',
+     *                 'type' => ContainerConfigurator::ARGUMENT_TYPE_REFERENCE,
+     *             ],
+     *         ],
+     *     ],
+     * ]
+     * ```
+     *
+     * @param array $config container config
+     *
+     * @throws WrongConfigException
+     */
     public function configure($config)
     {
         $config = $this->prepare($config);
@@ -38,7 +96,7 @@ class ContainerConfigurator
             }
 
             if (!isset($classConfig['type'])) {
-                $classConfig['type'] = static::CLASS_TYPE_SERVICE;
+                $classConfig['type'] = static::COMPONENT_TYPE_SERVICE;
             }
 
             if (!isset($classConfig['arguments'])) {
@@ -102,9 +160,9 @@ class ContainerConfigurator
                 return $object;
             };
 
-            if ($classConfig['type'] === static::CLASS_TYPE_SERVICE) {
+            if ($classConfig['type'] === static::COMPONENT_TYPE_SERVICE) {
                 $this->container->setSingleton($id, $factoryFunction);
-            } elseif ($classConfig['type'] === static::CLASS_TYPE_PROTOTYPE) {
+            } elseif ($classConfig['type'] === static::COMPONENT_TYPE_PROTOTYPE) {
                 $this->container->set($id, $factoryFunction);
             } else {
                 throw new WrongConfigException("Unknown class type '{$classConfig['type']}'");
