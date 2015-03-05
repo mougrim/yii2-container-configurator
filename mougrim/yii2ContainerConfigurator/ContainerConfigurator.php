@@ -36,6 +36,8 @@ class ContainerConfigurator
      *     'app' => function () {
      *         return Yii::$app;
      *     },
+     *     // alias of app
+     *     'app-alias' => 'app',
      *     'front.response' => [
      *         'class' => Response::class,
      *     ],
@@ -90,9 +92,18 @@ class ContainerConfigurator
         $config = $this->prepare($config);
         $configurator = $this;
         foreach ($config as $id => $classConfig) {
+            // alias
+            if (is_string($classConfig)) {
+                $this->container->set($id, $classConfig);
+                continue;
+            }
             if (is_callable($classConfig, true)) {
                 $this->container->set($id, $classConfig);
                 continue;
+            }
+
+            if (!isset($classConfig['class'])) {
+                throw new WrongConfigException("'class' is require param in class config for '{$id}'");
             }
 
             if (!isset($classConfig['type'])) {
@@ -117,9 +128,6 @@ class ContainerConfigurator
                 array $params,
                 array $config
             ) use($configurator, $id, $classConfig) {
-                if (!isset($classConfig['class'])) {
-                    throw new WrongConfigException("'class' is require param in class config for '{$id}'");
-                }
                 if (!isset($configurator->reflections[$classConfig['class']])) {
                     $configurator->reflections[$classConfig['class']] = new ReflectionClass($classConfig['class']);
                 }
@@ -135,9 +143,18 @@ class ContainerConfigurator
                             $classConfig['arguments'][$argumentNumber]
                         );
                     }
+                    unset($params[$argumentNumber]);
+                    unset ($classConfig['arguments'][$argumentNumber]);
                     $argumentNumber++;
                 }
-                if (is_a($classConfig['class'], 'yii\base\Object', true)) {
+
+                if (!empty($params) || !empty($classConfig['arguments'])) {
+                    throw new WrongConfigException("Constructor argument '{$argumentNumber}' is missing");
+                }
+                if (
+                    is_a($classConfig['class'], 'yii\base\Object', true) ||
+                    is_a($classConfig['class'], 'yii\base\Configurable', true)
+                ) {
                     // set $config as the last parameter (existing one will be overwritten)
                     $arguments[count($arguments)] = $properties;
                     $object = $configurator->reflections[$classConfig['class']]->newInstanceArgs($arguments);
@@ -171,9 +188,14 @@ class ContainerConfigurator
     }
 
     private function prepare(array $config) {
+        $parents = [];
         foreach($config as $id => &$classConfig) {
             if (is_callable($classConfig, true)) {
                 continue;
+            }
+
+            if(isset($classConfig['extends'])) {
+                $parents[$classConfig['extends']] = $classConfig['extends'];
             }
 
             $classConfig = $this->resolveExtends($config, $id, $classConfig);
@@ -186,6 +208,10 @@ class ContainerConfigurator
             }
         }
         unset($classConfig);
+
+        foreach ($parents as $parent) {
+            unset ($config[$parent]);
+        }
 
         return $config;
     }
@@ -208,8 +234,12 @@ class ContainerConfigurator
             if (!isset($classConfig['type']) && isset($parentClassConfig['type'])) {
                 $classConfig['type'] = $parentClassConfig['type'];
             }
-            if (!isset($classConfig['arguments']) && isset($parentClassConfig['arguments'])) {
-                $classConfig['arguments'] = $parentClassConfig['arguments'];
+            if (isset($parentClassConfig['arguments'])) {
+                foreach ($parentClassConfig['arguments'] as $argumentNumber => $argumentInfo) {
+                    if (!isset($classConfig['arguments'][$argumentNumber])) {
+                        $classConfig['arguments'][$argumentNumber] = $argumentInfo;
+                    }
+                }
             }
             if (isset($parentClassConfig['call'])) {
                 foreach ($parentClassConfig['call'] as $methodName => $methodArgumentsInfo) {
