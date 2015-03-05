@@ -79,6 +79,7 @@ return [
 ```
 
 This callback will call in all get:
+
 ```php
 Yii::$container->get('app');
 ```
@@ -113,6 +114,36 @@ return [
         'type' => ContainerConfigurator::COMPONENT_TYPE_PROTOTYPE,
     ],
 ];
+```
+
+### Aliases
+
+If you want add alias of service or prototype:
+```php
+<?php
+use yii\web\Response;
+use mougrim\yii2ContainerConfigurator\ContainerConfigurator;
+
+return [
+    'front.response' => [
+        'class' => Response::class, // class name
+    ],
+    'front.response-alias' => 'front.response',
+];
+```
+
+Now this:
+
+```php
+<?php
+Yii::$container->get('front.response-alias');
+```
+
+equivalent this:
+
+```php
+<?php
+Yii::$container->get('front.response');
 ```
 
 ### Arguments format
@@ -193,9 +224,9 @@ And add to controller map in config/main.php:
 
 ```php
     ...
-    'controllerMap'       => [
+    'controllerMap' => [
         ...
-        'site'   => 'controllers.site',
+        'site' => 'controllers.site',
     ],
     ...
 ```

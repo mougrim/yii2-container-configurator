@@ -644,6 +644,14 @@ class ContainerConfiguratorTest extends \PHPUnit_Framework_TestCase
                 'containerSetCallsQty' => 0,
                 'containerSetSingletonCallsQty' => 0,
             ],
+            'Wrong alias' => [
+                'config' => [
+                    'alias' => 'missing',
+                ],
+                'createParams' => [],
+                'containerSetCallsQty' => 0,
+                'containerSetSingletonCallsQty' => 0,
+            ],
             'Missing argument in config' => [
                 'config' => [
                     'service' => [

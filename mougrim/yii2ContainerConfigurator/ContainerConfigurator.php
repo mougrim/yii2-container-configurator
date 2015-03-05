@@ -94,6 +94,9 @@ class ContainerConfigurator
         foreach ($config as $id => $classConfig) {
             // alias
             if (is_string($classConfig)) {
+                if (!isset($config[$classConfig])) {
+                    throw new WrongConfigException("Component '{$classConfig}' missing for alias '{$id}'");
+                }
                 $this->container->set($id, $classConfig);
                 continue;
             }
