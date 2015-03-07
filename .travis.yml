@@ -8,6 +8,13 @@ php:
   - hhvm
   - hhvm-nightly
 
+env:
+  - YII_VERSION="2.0.0"
+  - YII_VERSION="2.0.1"
+  - YII_VERSION="2.0.2"
+  - YII_VERSION="2.0.3"
+  - YII_VERSION="dev-master"
+
 # run build against hhvm but allow them to fail
 # http://docs.travis-ci.com/user/build-configuration/#Rows-That-are-Allowed-To-Fail
 matrix:
@@ -29,6 +36,7 @@ install:
   - travis_retry composer self-update && composer --version
   - travis_retry composer global require "fxp/composer-asset-plugin:1.0.0"
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - travis_retry composer require yiisoft/yii2:${YII_VERSION}
   - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
