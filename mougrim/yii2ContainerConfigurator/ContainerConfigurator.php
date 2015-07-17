@@ -152,7 +152,7 @@ class ContainerConfigurator
                 }
 
                 if (!empty($params) || !empty($classConfig['arguments'])) {
-                    throw new WrongConfigException("Constructor argument '{$argumentNumber}' is missing");
+                    throw new WrongConfigException("Constructor argument '{$argumentNumber}' is missing for '{$id}'");
                 }
                 if (
                     is_a($classConfig['class'], 'yii\base\Object', true) ||
@@ -185,7 +185,7 @@ class ContainerConfigurator
             } elseif ($classConfig['type'] === static::COMPONENT_TYPE_PROTOTYPE) {
                 $this->container->set($id, $factoryFunction);
             } else {
-                throw new WrongConfigException("Unknown class type '{$classConfig['type']}'");
+                throw new WrongConfigException("Unknown class type '{$classConfig['type']}' for '{$id}'");
             }
         }
     }

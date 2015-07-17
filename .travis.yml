@@ -13,6 +13,8 @@ env:
   - YII_VERSION="2.0.1"
   - YII_VERSION="2.0.2"
   - YII_VERSION="2.0.3"
+  - YII_VERSION="2.0.4"
+  - YII_VERSION="2.0.5"
   - YII_VERSION="dev-master"
 
 # run build against hhvm but allow them to fail
