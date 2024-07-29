@@ -1,3 +1,6 @@
+# Repository is archived
+If you want to maintain it, you can make a fork.
+
 # Container configurator Extension for Yii 2
 
 This extension can configure di container for yii2 with simple php-array and use lazy load.
